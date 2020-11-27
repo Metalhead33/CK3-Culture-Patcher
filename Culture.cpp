@@ -9,6 +9,19 @@ bool isGreater(const NamedNumber& a, const NamedNumber& b) {
 	return a.second > b.second;
 }
 
+const QStringList& Culture::getGraphicalCultures() const
+{
+	return graphicalCultures;
+}
+QStringList& Culture::getGraphicalCultures()
+{
+	return graphicalCultures;
+}
+void Culture::setGraphicalCultures(const QStringList &value)
+{
+	graphicalCultures = value;
+}
+
 Culture::Culture()
 {
 
@@ -206,7 +219,7 @@ void Culture::load(QTextStream &stream)
 			} break;
 		case CultureParseStates::CHARMOD_MAP:
 			state = CultureParseStates::CHARMOD_START;
-			character_modifier.insert(tmpStr,curStr);
+			characterModifier.insert(tmpStr,curStr);
 			break;
 		case CultureParseStates::ALWAYS_PATRONYM_ENTRY:
 			if(!curStr.compare(QStringLiteral("="))) {
@@ -214,8 +227,8 @@ void Culture::load(QTextStream &stream)
 			} break;
 		case CultureParseStates::ALWAYS_PATRONYM_EQUAL:
 			if(!curStr.compare(QStringLiteral("yes"))) {
-				always_use_patronym = true;
-			} else always_use_patronym = false;
+				alwaysUsePatronym = true;
+			} else alwaysUsePatronym = false;
 			state = CultureParseStates::EXPECTING_ENTRY;
 			break;
 		case CultureParseStates::MALE_PATRONYM_PREFIX_V_ENTRY:
@@ -325,22 +338,22 @@ void Culture::load(QTextStream &stream)
 		case CultureParseStates::MALE_PATRONYM_PREFIX_V_EQUAL:
 			state = CultureParseStates::EXPECTING_ENTRY;
 			curStr.remove(QChar('\"'));
-			patronym_prefix_male_vowel = curStr;
+			patronymPrefixMaleVowel = curStr;
 			break;
 		case CultureParseStates::FEMALE_PATRONYM_PREFIX_V_EQUAL:
 			state = CultureParseStates::EXPECTING_ENTRY;
 			curStr.remove(QChar('\"'));
-			patronym_prefix_female_vowel = curStr;
+			patronymPrefixFemaleVowel = curStr;
 			break;
 		case CultureParseStates::BASTARD_DYNASTY_EQUAL:
 			state = CultureParseStates::EXPECTING_ENTRY;
 			curStr.remove(QChar('\"'));
-			bastard_dynasty_prefix = curStr;
+			bastardDynastyPrefix = curStr;
 			break;
 		case CultureParseStates::GRAMMAR_TRANSFORM_EQUAL:
 			state = CultureParseStates::EXPECTING_ENTRY;
 			curStr.remove(QChar('\"'));
-			grammar_transform = curStr;
+			grammarTransform = curStr;
 			break;
 		case CultureParseStates::GRAPHICAL_CULTURES_EQUAL:
 			if(!curStr.compare(QStringLiteral("{"))) {
@@ -370,73 +383,73 @@ void Culture::load(QTextStream &stream)
 			if(!curStr.compare(QStringLiteral("}"))) {
 				state = CultureParseStates::EXPECTING_ENTRY;
 			} else {
-				graphical_cultures.append(curStr);
+				graphicalCultures.append(curStr);
 			} break;
 		case CultureParseStates::LOCATION_PREFIX_EQUAL:
 			state = CultureParseStates::EXPECTING_ENTRY;
 			curStr.remove(QChar('\"'));
-			dynasty_of_location_prefix = curStr;
+			dynastyOfLocationPrefix = curStr;
 			break;
 		case CultureParseStates::MALE_PATRONYM_SUFFIX_EQUAL:
 			state = CultureParseStates::EXPECTING_ENTRY;
 			curStr.remove(QChar('\"'));
-			patronym_suffix_male = curStr;
+			patronymSuffixMale = curStr;
 			break;
 		case CultureParseStates::FEMALE_PATRONYM_SUFFIX_EQUAL:
 			state = CultureParseStates::EXPECTING_ENTRY;
 			curStr.remove(QChar('\"'));
-			patronym_suffix_female = curStr;
+			patronymSuffixFemale = curStr;
 			break;
 		case CultureParseStates::MALE_PATRONYM_PREFIX_EQUAL:
 			state = CultureParseStates::EXPECTING_ENTRY;
 			curStr.remove(QChar('\"'));
-			patronym_prefix_male = curStr;
+			patronymPrefixMale = curStr;
 			break;
 		case CultureParseStates::FEMALE_PATRONYM_PREFIX_EQUAL:
 			state = CultureParseStates::EXPECTING_ENTRY;
 			curStr.remove(QChar('\"'));
-			patronym_prefix_female = curStr;
+			patronymPrefixFemale = curStr;
 			break;
 		case CultureParseStates::PAT_GRF_NAME_CHANCE_EQUAL:
 			state = CultureParseStates::EXPECTING_ENTRY;
-			pat_grf_name_chance = curStr.toInt();
+			patGrfNameChance = curStr.toInt();
 			break;
 		case CultureParseStates::MAT_GRF_NAME_CHANCE_EQUAL:
 			state = CultureParseStates::EXPECTING_ENTRY;
-			mat_grf_name_chance = curStr.toInt();
+			matGrfNameChance = curStr.toInt();
 			break;
 		case CultureParseStates::FATHER_NAME_CHANCE_EQUAL:
 			state = CultureParseStates::EXPECTING_ENTRY;
-			father_name_chance = curStr.toInt();
+			fatherNameChance = curStr.toInt();
 			break;
 		case CultureParseStates::PAT_GRM_NAME_CHANCE_EQUAL:
 			state = CultureParseStates::EXPECTING_ENTRY;
-			pat_grm_name_chance = curStr.toInt();
+			patGrmNameChance = curStr.toInt();
 			break;
 		case CultureParseStates::MAT_GRM_NAME_CHANCE_EQUAL:
 			state = CultureParseStates::EXPECTING_ENTRY;
-			mat_grm_name_chance = curStr.toInt();
+			matGrmNameChance = curStr.toInt();
 			break;
 		case CultureParseStates::MOTHER_NAME_CHANCE_EQUAL:
 			state = CultureParseStates::EXPECTING_ENTRY;
-			mother_name_chance = curStr.toInt();
+			motherNameChance = curStr.toInt();
 			break;
 		case CultureParseStates::DYNASTY_TITLE_EQUAL:
 			if(!curStr.compare(QStringLiteral("yes"))) {
-				dynasty_title_names = true;
-			} else dynasty_title_names = false;
+				dynastyTitleNames = true;
+			} else dynastyTitleNames = false;
 			state = CultureParseStates::EXPECTING_ENTRY;
 			break;
 		case CultureParseStates::DYNNAME_FIRST_EQUAL:
 			if(!curStr.compare(QStringLiteral("yes"))) {
-				dynasty_name_first = true;
-			} else dynasty_name_first = false;
+				dynastyNameFirst = true;
+			} else dynastyNameFirst = false;
 			state = CultureParseStates::EXPECTING_ENTRY;
 			break;
 		case CultureParseStates::FOUNDER_NAME_EQUAL:
 			if(!curStr.compare(QStringLiteral("yes"))) {
-				founder_named_dynasties = true;
-			} else founder_named_dynasties = false;
+				founderNamedDynasties = true;
+			} else founderNamedDynasties = false;
 			state = CultureParseStates::EXPECTING_ENTRY;
 			break;
 		case CultureParseStates::CADET_DYNASTY_START:
@@ -446,7 +459,7 @@ void Culture::load(QTextStream &stream)
 				state = CultureParseStates::EXPECTING_ENTRY;
 			} else {
 				curStr.remove(QChar('\"'));
-				cadet_dynasty_names.append(curStr);
+				cadetDynastyNames.append(curStr);
 				state = CultureParseStates::CADET_DYNASTY_START;
 			}
 			break;
@@ -457,7 +470,7 @@ void Culture::load(QTextStream &stream)
 				state = CultureParseStates::EXPECTING_ENTRY;
 			} else {
 				curStr.remove(QChar('\"'));
-				dynasty_names.append(curStr);
+				dynastyNames.append(curStr);
 				state = CultureParseStates::DYNASTY_START;
 			}
 			break;
@@ -466,7 +479,7 @@ void Culture::load(QTextStream &stream)
 				state = CultureParseStates::EXPECTING_ENTRY;
 			} else {
 				curStr.remove(QChar('\"'));
-				male_names.append(curStr);
+				maleNames.append(curStr);
 				state = CultureParseStates::MALE_START;
 			}
 			break;
@@ -475,14 +488,14 @@ void Culture::load(QTextStream &stream)
 				state = CultureParseStates::EXPECTING_ENTRY;
 			} else {
 				curStr.remove(QChar('\"'));
-				female_names.append(curStr);
+				femaleNames.append(curStr);
 				state = CultureParseStates::FEMALE_START;
 			}
 			break;
 		case CultureParseStates::CADET_DYNASTY_EXTRA:
 			if(!curStr.compare(QStringLiteral("}"))) {
-				if(tmpList.size() > 1) cadet_dynasty_names.append(QStringLiteral("{ %1 %2 }").arg(tmpList[0]).arg(tmpList[1]));
-				else cadet_dynasty_names.append(QStringLiteral("{ %1 }").arg(tmpList[0]));
+				if(tmpList.size() > 1) cadetDynastyNames.append(QStringLiteral("{ %1 %2 }").arg(tmpList[0]).arg(tmpList[1]));
+				else cadetDynastyNames.append(QStringLiteral("{ %1 }").arg(tmpList[0]));
 				tmpList.clear();
 				state = CultureParseStates::CADET_DYNASTY_START;
 			} else {
@@ -492,8 +505,8 @@ void Culture::load(QTextStream &stream)
 			break;
 		case CultureParseStates::DYNASTY_EXTRA:
 			if(!curStr.compare(QStringLiteral("}"))) {
-				if(tmpList.size() > 1) dynasty_names.append(QStringLiteral("{ %1 %2 }").arg(tmpList[0]).arg(tmpList[1]));
-				else dynasty_names.append(QStringLiteral("{ %1 }").arg(tmpList[0]));
+				if(tmpList.size() > 1) dynastyNames.append(QStringLiteral("{ %1 %2 }").arg(tmpList[0]).arg(tmpList[1]));
+				else dynastyNames.append(QStringLiteral("{ %1 }").arg(tmpList[0]));
 				tmpList.clear();
 				state = CultureParseStates::DYNASTY_START;
 			} else {
@@ -537,7 +550,7 @@ void Culture::load(QTextStream &stream)
 			break;
 		case CultureParseStates::MERCENARY_ENTRY_EQUAL:
 			curStr.remove(QChar('\"'));
-			mercenary_names.append(curStr);
+			mercenaryNames.append(curStr);
 			state = CultureParseStates::MERCENARY_ENTRY_STR;
 			break;
 		case CultureParseStates::MERCENARY_ENTRY_STR:
@@ -616,9 +629,9 @@ void Culture::load(QTextStream &stream)
 void Culture::save(QTextStream &stream) const
 {
 	// Graphical Cultures
-	if(!graphical_cultures.isEmpty()) {
+	if(!graphicalCultures.isEmpty()) {
 		stream << QStringLiteral("\t\tgraphical_cultures = {\n");
-		for(const auto& it : graphical_cultures) {
+		for(const auto& it : graphicalCultures) {
 			stream << QStringLiteral("\t\t\t") << it << '\n';
 		}
 		stream << QStringLiteral("\t\t}\n");
@@ -626,18 +639,18 @@ void Culture::save(QTextStream &stream) const
 	// Colour
 	stream << QStringLiteral("\t\tcolor = { ") << color.redF() << ' ' << color.greenF() << ' ' << color.blueF() << QStringLiteral(" }\n");
 	// Character modifier
-	if(!character_modifier.isEmpty()) {
+	if(!characterModifier.isEmpty()) {
 		stream << QStringLiteral("\t\tcharacter_modifier = {\n");
-		for(auto it = std::begin(character_modifier); it != std::end(character_modifier); ++it) {
+		for(auto it = std::begin(characterModifier); it != std::end(characterModifier); ++it) {
 			stream << QStringLiteral("\t\t\t%1 = %2\n").arg(it.key()).arg(it.value().toString());
 		}
 		stream << QStringLiteral("\t\t}\n");
 	}
 	// Cadet Dynasty Names
-	if(!cadet_dynasty_names.isEmpty()) {
+	if(!cadetDynastyNames.isEmpty()) {
 		int i = 0;
 		stream << QStringLiteral("\t\tcadet_dynasty_names = {\n\t\t\t");
-		for(const auto& it : cadet_dynasty_names) {
+		for(const auto& it : cadetDynastyNames) {
 			if(i < 15) {
 				if(it.startsWith(QChar('{'))) stream << it << ' ';
 				else stream << '\"' << it << '\"' << ' ';
@@ -651,10 +664,10 @@ void Culture::save(QTextStream &stream) const
 		stream << QStringLiteral("\n\t\t}\n");
 	}
 	// Dynasty Names
-	if(!dynasty_names.isEmpty()) {
+	if(!dynastyNames.isEmpty()) {
 		int i = 0;
 		stream << QStringLiteral("\t\tdynasty_names = {\n\t\t\t");
-		for(const auto& it : dynasty_names) {
+		for(const auto& it : dynastyNames) {
 			if(i < 15) {
 				if(it.startsWith(QChar('{'))) stream << it << ' ';
 				else stream << '\"' << it << '\"' << ' ';
@@ -668,10 +681,10 @@ void Culture::save(QTextStream &stream) const
 		stream << QStringLiteral("\n\t\t}\n");
 	}
 	// Male Names
-	if(!male_names.isEmpty()) {
+	if(!maleNames.isEmpty()) {
 		int i = 0;
 		stream << QStringLiteral("\t\tmale_names = {\n\t\t\t");
-		for(const auto& it : male_names) {
+		for(const auto& it : maleNames) {
 			if(i < 15) {
 				stream << '\"' << it << '\"' << ' ';
 				++i;
@@ -683,10 +696,10 @@ void Culture::save(QTextStream &stream) const
 		stream << QStringLiteral("\n\t\t}\n");
 	}
 	// Female Names
-	if(!female_names.isEmpty()) {
+	if(!femaleNames.isEmpty()) {
 		int i = 0;
 		stream << QStringLiteral("\t\tfemale_names = {\n\t\t\t");
-		for(const auto& it : female_names) {
+		for(const auto& it : femaleNames) {
 			if(i < 15) {
 				stream << '\"' << it << '\"' << ' ';
 				++i;
@@ -697,25 +710,25 @@ void Culture::save(QTextStream &stream) const
 		}
 		stream << QStringLiteral("\n\t\t}\n");
 	}
-	if(!dynasty_of_location_prefix.isEmpty()) stream << QStringLiteral("\t\tdynasty_of_location_prefix = \"%1\"\n").arg(dynasty_of_location_prefix);
-	if(!patronym_suffix_male.isEmpty()) stream << QStringLiteral("\t\tpatronym_suffix_male = \"%1\"\n").arg(patronym_suffix_male);
-	if(!patronym_suffix_female.isEmpty()) stream << QStringLiteral("\t\tpatronym_suffix_female = \"%1\"\n").arg(patronym_suffix_female);
-	if(!patronym_prefix_male.isEmpty()) stream << QStringLiteral("\t\tpatronym_prefix_male = \"%1\"\n").arg(patronym_prefix_male);
-	if(!patronym_prefix_male_vowel.isEmpty()) stream << QStringLiteral("\t\tpatronym_prefix_male_vowel = \"%1\"\n").arg(patronym_prefix_male_vowel);
-	if(!patronym_prefix_female.isEmpty()) stream << QStringLiteral("\t\tpatronym_prefix_female = \"%1\"\n").arg(patronym_prefix_female);
-	if(!patronym_prefix_female_vowel.isEmpty()) stream << QStringLiteral("\t\tpatronym_prefix_female_vowel = \"%1\"\n").arg(patronym_prefix_female_vowel);
-	if(!grammar_transform.isEmpty()) stream << QStringLiteral("\t\tgrammar_transform = %1\n").arg(grammar_transform);
-	if(!bastard_dynasty_prefix.isEmpty()) stream << QStringLiteral("\t\tbastard_dynasty_prefix = \"%1\"\n").arg(bastard_dynasty_prefix);
-	if(dynasty_name_first) stream << QStringLiteral("\t\tdynasty_name_first = yes\n");
-	if(founder_named_dynasties) stream << QStringLiteral("\t\tfounder_named_dynasties = yes\n");
-	if(dynasty_title_names) stream << QStringLiteral("\t\tdynasty_title_names = yes\n");
-	if(always_use_patronym) stream << QStringLiteral("\t\talways_use_patronym = yes\n");
-	if(pat_grf_name_chance) stream << QStringLiteral("\t\tpat_grf_name_chance = %1\n").arg(pat_grf_name_chance);
-	if(mat_grf_name_chance) stream << QStringLiteral("\t\tmat_grf_name_chance = %1\n").arg(mat_grf_name_chance);
-	if(father_name_chance) stream << QStringLiteral("\t\tfather_name_chance = %1\n").arg(father_name_chance);
-	if(pat_grm_name_chance) stream << QStringLiteral("\t\t\t\tpat_grm_name_chance = %1\n").arg(pat_grm_name_chance);
-	if(mat_grm_name_chance) stream << QStringLiteral("mat_grm_name_chance = %1\n").arg(mat_grm_name_chance);
-	if(mother_name_chance) stream << QStringLiteral("\t\tmother_name_chance = %1\n").arg(mother_name_chance);
+	if(!dynastyOfLocationPrefix.isEmpty()) stream << QStringLiteral("\t\tdynasty_of_location_prefix = \"%1\"\n").arg(dynastyOfLocationPrefix);
+	if(!patronymSuffixMale.isEmpty()) stream << QStringLiteral("\t\tpatronym_suffix_male = \"%1\"\n").arg(patronymSuffixMale);
+	if(!patronymSuffixFemale.isEmpty()) stream << QStringLiteral("\t\tpatronym_suffix_female = \"%1\"\n").arg(patronymSuffixFemale);
+	if(!patronymPrefixMale.isEmpty()) stream << QStringLiteral("\t\tpatronym_prefix_male = \"%1\"\n").arg(patronymPrefixMale);
+	if(!patronymPrefixMaleVowel.isEmpty()) stream << QStringLiteral("\t\tpatronym_prefix_male_vowel = \"%1\"\n").arg(patronymPrefixMaleVowel);
+	if(!patronymPrefixFemale.isEmpty()) stream << QStringLiteral("\t\tpatronym_prefix_female = \"%1\"\n").arg(patronymPrefixFemale);
+	if(!patronymPrefixFemaleVowel.isEmpty()) stream << QStringLiteral("\t\tpatronym_prefix_female_vowel = \"%1\"\n").arg(patronymPrefixFemaleVowel);
+	if(!grammarTransform.isEmpty()) stream << QStringLiteral("\t\tgrammar_transform = %1\n").arg(grammarTransform);
+	if(!bastardDynastyPrefix.isEmpty()) stream << QStringLiteral("\t\tbastard_dynasty_prefix = \"%1\"\n").arg(bastardDynastyPrefix);
+	if(dynastyNameFirst) stream << QStringLiteral("\t\tdynasty_name_first = yes\n");
+	if(founderNamedDynasties) stream << QStringLiteral("\t\tfounder_named_dynasties = yes\n");
+	if(dynastyTitleNames) stream << QStringLiteral("\t\tdynasty_title_names = yes\n");
+	if(alwaysUsePatronym) stream << QStringLiteral("\t\talways_use_patronym = yes\n");
+	if(patGrfNameChance) stream << QStringLiteral("\t\tpat_grf_name_chance = %1\n").arg(patGrfNameChance);
+	if(matGrfNameChance) stream << QStringLiteral("\t\tmat_grf_name_chance = %1\n").arg(matGrfNameChance);
+	if(fatherNameChance) stream << QStringLiteral("\t\tfather_name_chance = %1\n").arg(fatherNameChance);
+	if(patGrmNameChance) stream << QStringLiteral("\t\t\t\tpat_grm_name_chance = %1\n").arg(patGrmNameChance);
+	if(matGrmNameChance) stream << QStringLiteral("mat_grm_name_chance = %1\n").arg(matGrmNameChance);
+	if(motherNameChance) stream << QStringLiteral("\t\tmother_name_chance = %1\n").arg(motherNameChance);
 	// Ethnicities
 	if(!ethnicities.isEmpty()) {
 		QList<QPair<QString,int>> tmpList;
@@ -730,9 +743,9 @@ void Culture::save(QTextStream &stream) const
 		stream << QStringLiteral("\t\t}\n");
 	}
 	// Mercenaries
-	if(!mercenary_names.isEmpty()) {
+	if(!mercenaryNames.isEmpty()) {
 		stream << QStringLiteral("\t\tmercenary_names = {\n");
-		for(const auto& it : mercenary_names) {
+		for(const auto& it : mercenaryNames) {
 			stream << QStringLiteral("\t\t\t{ name = \"%1\" }").arg(it) << '\n';
 		}
 		stream << QStringLiteral("\t\t}\n");
@@ -749,4 +762,196 @@ QTextStream &operator>>(QTextStream &stream, Culture &culture)
 {
 	culture.load(stream);
 	return stream;
+}
+const QStringList& Culture::getCadetDynastyNames() const
+{
+	return cadetDynastyNames;
+}
+QStringList& Culture::getCadetDynastyNames()
+{
+	return cadetDynastyNames;
+}
+void Culture::setCadetDynastyNames(const QStringList &value)
+{
+	cadetDynastyNames = value;
+}
+const QStringList& Culture::getDynastyNames() const
+{
+	return dynastyNames;
+}
+QStringList& Culture::getDynastyNames()
+{
+	return dynastyNames;
+}
+void Culture::setDynastyNames(const QStringList &value)
+{
+	dynastyNames = value;
+}
+const QStringList& Culture::getMaleNames() const
+{
+	return maleNames;
+}
+QStringList& Culture::getMaleNames()
+{
+	return maleNames;
+}
+void Culture::setMaleNames(const QStringList &value)
+{
+	maleNames = value;
+}
+const QStringList& Culture::getFemaleNames() const
+{
+	return femaleNames;
+}
+QStringList& Culture::getFemaleNames()
+{
+	return femaleNames;
+}
+void Culture::setFemaleNames(const QStringList &value)
+{
+	femaleNames = value;
+}
+const QString& Culture::getDynastyOfLocationPrefix() const
+{
+	return dynastyOfLocationPrefix;
+}
+QString& Culture::getDynastyOfLocationPrefix()
+{
+	return dynastyOfLocationPrefix;
+}
+void Culture::setDynastyOfLocationPrefix(const QString &value)
+{
+	dynastyOfLocationPrefix = value;
+}
+const QString& Culture::getPatronymSuffixMale() const
+{
+	return patronymSuffixMale;
+}
+QString& Culture::getPatronymSuffixMale()
+{
+	return patronymSuffixMale;
+}
+void Culture::setPatronymSuffixMale(const QString &value)
+{
+	patronymSuffixMale = value;
+}
+const QString& Culture::getPatronymSuffixFemale() const
+{
+	return patronymSuffixFemale;
+}
+QString& Culture::getPatronymSuffixFemale()
+{
+	return patronymSuffixFemale;
+}
+void Culture::setPatronymSuffixFemale(const QString &value)
+{
+	patronymSuffixFemale = value;
+}
+const QString& Culture::getPatronymPrefixMale() const
+{
+	return patronymPrefixMale;
+}
+QString& Culture::getPatronymPrefixMale()
+{
+	return patronymPrefixMale;
+}
+void Culture::setPatronymPrefixMale(const QString &value)
+{
+	patronymPrefixMale = value;
+}
+const QString& Culture::getPatronymPrefixMaleVowel() const
+{
+	return patronymPrefixMaleVowel;
+}
+QString& Culture::getPatronymPrefixMaleVowel()
+{
+	return patronymPrefixMaleVowel;
+}
+void Culture::setPatronymPrefixMaleVowel(const QString &value)
+{
+	patronymPrefixMaleVowel = value;
+}
+const QString& Culture::getPatronymPrefixFemale() const
+{
+	return patronymPrefixFemale;
+}
+QString& Culture::getPatronymPrefixFemale()
+{
+	return patronymPrefixFemale;
+}
+void Culture::setPatronymPrefixFemale(const QString &value)
+{
+	patronymPrefixFemale = value;
+}
+const QString& Culture::getPatronymPrefixFemaleVowel() const
+{
+	return patronymPrefixFemaleVowel;
+}
+QString& Culture::getPatronymPrefixFemaleVowel()
+{
+	return patronymPrefixFemaleVowel;
+}
+void Culture::setPatronymPrefixFemaleVowel(const QString &value)
+{
+	patronymPrefixFemaleVowel = value;
+}
+const QString& Culture::getGrammarTransform() const
+{
+	return grammarTransform;
+}
+QString& Culture::getGrammarTransform()
+{
+	return grammarTransform;
+}
+void Culture::setGrammarTransform(const QString &value)
+{
+	grammarTransform = value;
+}
+const QString& Culture::getBastardDynastyPrefix() const
+{
+	return bastardDynastyPrefix;
+}
+QString& Culture::getBastardDynastyPrefix()
+{
+	return bastardDynastyPrefix;
+}
+void Culture::setBastardDynastyPrefix(const QString &value)
+{
+	bastardDynastyPrefix = value;
+}
+const QMap<QString,int>& Culture::getEthnicities() const
+{
+	return ethnicities;
+}
+QMap<QString,int>& Culture::getEthnicities()
+{
+	return ethnicities;
+}
+void Culture::setEthnicities(const QMap<QString,int> &value)
+{
+	ethnicities = value;
+}
+const QStringList& Culture::getMercenaryNames() const
+{
+	return mercenaryNames;
+}
+QStringList& Culture::getMercenaryNames()
+{
+	return mercenaryNames;
+}
+void Culture::setMercenaryNames(const QStringList &value)
+{
+	mercenaryNames = value;
+}
+const QVariantMap& Culture::getCharacterModifier() const
+{
+	return characterModifier;
+}
+QVariantMap& Culture::getCharacterModifier()
+{
+	return characterModifier;
+}
+void Culture::setCharacterModifier(const QVariantMap &value)
+{
+	characterModifier = value;
 }

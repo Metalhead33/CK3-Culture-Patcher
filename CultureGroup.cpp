@@ -1,5 +1,64 @@
 #include "CultureGroup.hpp"
 
+QString &CultureGroup::getName()
+{
+	return name;
+}
+const QString &CultureGroup::getName() const
+{
+	return name;
+}
+
+void CultureGroup::setName(const QString &value)
+{
+	name = value;
+}
+
+QStringList& CultureGroup::getGraphicalCultures()
+{
+	return graphicalCultures;
+}
+
+const QStringList& CultureGroup::getGraphicalCultures() const
+{
+	return graphicalCultures;
+}
+
+void CultureGroup::setGraphicalCultures(const QStringList &value)
+{
+	graphicalCultures = value;
+}
+
+QStringList& CultureGroup::getMercenaryNames()
+{
+	return mercenaryNames;
+}
+
+const QStringList& CultureGroup::getMercenaryNames() const
+{
+	return mercenaryNames;
+}
+
+void CultureGroup::setMercenaryNames(const QStringList &value)
+{
+	mercenaryNames = value;
+}
+
+QMap<QString, Culture> &CultureGroup::getCultures()
+{
+	return cultures;
+}
+
+const QMap<QString, Culture> &CultureGroup::getCultures() const
+{
+	return cultures;
+}
+
+void CultureGroup::setCultures(const QMap<QString, Culture> &value)
+{
+	cultures = value;
+}
+
 CultureGroup::CultureGroup()
 {
 
@@ -87,7 +146,7 @@ void CultureGroup::load(QTextStream &stream)
 			if(!curStr.compare(QStringLiteral("}"))) {
 				state = CultureGroupParseStates::EXPECTING_ENTRY;
 			} else {
-				graphical_cultures.append(curStr);
+				graphicalCultures.append(curStr);
 			} break;
 		case CultureGroupParseStates::MERCENARY_START:
 			if(!curStr.compare(QStringLiteral("}"))) {
@@ -106,7 +165,7 @@ void CultureGroup::load(QTextStream &stream)
 			break;
 		case CultureGroupParseStates::MERCENARY_ENTRY_EQUAL:
 			curStr.remove(QChar('\"'));
-			mercenary_names.append(curStr);
+			mercenaryNames.append(curStr);
 			state = CultureGroupParseStates::MERCENARY_ENTRY_STR;
 			break;
 		case CultureGroupParseStates::MERCENARY_ENTRY_STR:
@@ -121,17 +180,17 @@ void CultureGroup::load(QTextStream &stream)
 void CultureGroup::save(QTextStream &stream) const
 {
 	if(!name.isEmpty()) stream << name << QStringLiteral(" = {\n");
-	if(!graphical_cultures.isEmpty()) {
+	if(!graphicalCultures.isEmpty()) {
 		stream << QStringLiteral("\tgraphical_cultures = {\n");
-		for(const auto& it : graphical_cultures) {
+		for(const auto& it : graphicalCultures) {
 			stream << QStringLiteral("\t\t") << it << '\n';
 		}
 		stream << QStringLiteral("\t}\n");
 	}
 	// Mercenaries
-	if(!mercenary_names.isEmpty()) {
+	if(!mercenaryNames.isEmpty()) {
 		stream << QStringLiteral("\tmercenary_names = {\n");
-		for(const auto& it : mercenary_names) {
+		for(const auto& it : mercenaryNames) {
 			stream << QStringLiteral("\t\t{ name = \"%1\" }").arg(it) << '\n';
 		}
 		stream << QStringLiteral("\t}\n");

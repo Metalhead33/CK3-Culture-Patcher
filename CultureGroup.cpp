@@ -102,6 +102,7 @@ void CultureGroup::load(QTextStream &stream)
 			}
 			break;
 		case CultureGroupParseStates::MERCENARY_ENTRY_EQUAL:
+			curStr.remove(QChar('\"'));
 			mercenary_names.append(curStr);
 			state = CultureGroupParseStates::MERCENARY_ENTRY_STR;
 			break;
@@ -117,24 +118,24 @@ void CultureGroup::load(QTextStream &stream)
 void CultureGroup::save(QTextStream &stream) const
 {
 	if(!graphical_cultures.isEmpty()) {
-		stream << QStringLiteral("graphical_cultures = {\n");
+		stream << QStringLiteral("\tgraphical_cultures = {\n");
 		for(const auto& it : graphical_cultures) {
-			stream << it << '\n';
+			stream << QStringLiteral("\t\t") << it << '\n';
 		}
-		stream << '}' << '\n';
+		stream << QStringLiteral("\t}\n");
 	}
 	// Mercenaries
 	if(!mercenary_names.isEmpty()) {
-		stream << QStringLiteral("mercenary_names = {\n");
+		stream << QStringLiteral("\tmercenary_names = {\n");
 		for(const auto& it : mercenary_names) {
-			stream << QStringLiteral("{ name = \"%1\" }").arg(it) << '\n';
+			stream << QStringLiteral("\t\t{ name = \"%1\" }").arg(it) << '\n';
 		}
-		stream << '}' << '\n';
+		stream << QStringLiteral("\t}\n");
 	}
 	// Cultures
 	if(!cultures.isEmpty()) {
 		for(auto it = std::begin(cultures); it != std::end(cultures); ++it) {
-			stream << it.key() << QStringLiteral(" = {\n") << it.value() << QStringLiteral("\n}\n");
+			stream << QChar('\t') << it.key() << QStringLiteral(" = {\n") << it.value() << QStringLiteral("\n\t}\n");
 		}
 	}
 }

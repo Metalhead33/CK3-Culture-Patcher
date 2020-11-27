@@ -28,7 +28,10 @@ void CultureGroup::load(QTextStream &stream)
 	CultureGroupParseStates state = CultureGroupParseStates::EXPECTING_ENTRY;
 	QString tmpStr;
 	QStringList tmpList;
-	int tmpInt = 0;
+	stream >> name;
+	stream >> tmpStr;
+	stream >> tmpStr;
+	tmpStr.clear();
 	while(state != CultureGroupParseStates::DONE) {
 		QString curStr;
 		stream >> curStr;
@@ -117,6 +120,7 @@ void CultureGroup::load(QTextStream &stream)
 
 void CultureGroup::save(QTextStream &stream) const
 {
+	if(!name.isEmpty()) stream << name << QStringLiteral(" = {\n");
 	if(!graphical_cultures.isEmpty()) {
 		stream << QStringLiteral("\tgraphical_cultures = {\n");
 		for(const auto& it : graphical_cultures) {
@@ -138,13 +142,8 @@ void CultureGroup::save(QTextStream &stream) const
 			stream << QChar('\t') << it.key() << QStringLiteral(" = {\n") << it.value() << QStringLiteral("\n\t}\n");
 		}
 	}
+	if(!name.isEmpty()) stream << QChar('}');
 }
-
-/*
-	QStringList graphical_cultures;
-	QStringList mercenary_names;
-	QMap<QString,Culture> cultures;
-*/
 
 QTextStream &operator<<(QTextStream &stream, const CultureGroup &culture)
 {

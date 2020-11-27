@@ -7,6 +7,7 @@
 class CultureGroup
 {
 private:
+	QString name;
 	QStringList graphical_cultures;
 	QStringList mercenary_names;
 	QMap<QString,Culture> cultures;

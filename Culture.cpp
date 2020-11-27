@@ -481,7 +481,8 @@ void Culture::load(QTextStream &stream)
 			break;
 		case CultureParseStates::CADET_DYNASTY_EXTRA:
 			if(!curStr.compare(QStringLiteral("}"))) {
-				cadet_dynasty_names.append(QStringLiteral("{ %1 %2 }").arg(tmpList[0],tmpList[1]));
+				if(tmpList.size() > 1) cadet_dynasty_names.append(QStringLiteral("{ %1 %2 }").arg(tmpList[0]).arg(tmpList[1]));
+				else cadet_dynasty_names.append(QStringLiteral("{ %1 }").arg(tmpList[0]));
 				tmpList.clear();
 				state = CultureParseStates::CADET_DYNASTY_START;
 			} else {
@@ -491,7 +492,8 @@ void Culture::load(QTextStream &stream)
 			break;
 		case CultureParseStates::DYNASTY_EXTRA:
 			if(!curStr.compare(QStringLiteral("}"))) {
-				dynasty_names.append(QStringLiteral("{ %1 %2 }").arg(tmpList[0],tmpList[1]));
+				if(tmpList.size() > 1) dynasty_names.append(QStringLiteral("{ %1 %2 }").arg(tmpList[0]).arg(tmpList[1]));
+				else dynasty_names.append(QStringLiteral("{ %1 }").arg(tmpList[0]));
 				tmpList.clear();
 				state = CultureParseStates::DYNASTY_START;
 			} else {
@@ -726,7 +728,7 @@ void Culture::save(QTextStream &stream) const
 		}
 		stream << '}' << '\n';
 	}
-	// Graphical Cultures
+	// Mercenaries
 	if(!mercenary_names.isEmpty()) {
 		stream << QStringLiteral("mercenary_names = {\n");
 		for(const auto& it : mercenary_names) {

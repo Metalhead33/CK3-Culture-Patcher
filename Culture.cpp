@@ -867,25 +867,25 @@ void Culture::fromJson(const QJsonObject &json)
 	tmpMN = json[QStringLiteral("cadetDynastyNames")].toArray();
 	if(!tmpMN.isEmpty()) {
 		for(const auto it : tmpMN) {
-			mercenaryNames.push_back(it.toString());
+			cadetDynastyNames.push_back(it.toString());
 		}
 	}
 	tmpMN = json[QStringLiteral("dynastyNames")].toArray();
 	if(!tmpMN.isEmpty()) {
 		for(const auto it : tmpMN) {
-			mercenaryNames.push_back(it.toString());
+			dynastyNames.push_back(it.toString());
 		}
 	}
 	tmpMN = json[QStringLiteral("maleNames")].toArray();
 	if(!tmpMN.isEmpty()) {
 		for(const auto it : tmpMN) {
-			mercenaryNames.push_back(it.toString());
+			maleNames.push_back(it.toString());
 		}
 	}
 	tmpMN = json[QStringLiteral("femaleNames")].toArray();
 	if(!tmpMN.isEmpty()) {
 		for(const auto it : tmpMN) {
-			mercenaryNames.push_back(it.toString());
+			femaleNames.push_back(it.toString());
 		}
 	}
 	dynastyOfLocationPrefix = json[QStringLiteral("dynastyOfLocationPrefix")].toString();
@@ -939,25 +939,25 @@ void Culture::fromCbor(const QCborMap &cbor)
 	tmpMN = cbor[QStringLiteral("cadetDynastyNames")].toArray();
 	if(!tmpMN.isEmpty()) {
 		for(const auto it : tmpMN) {
-			mercenaryNames.push_back(it.toString());
+			cadetDynastyNames.push_back(it.toString());
 		}
 	}
 	tmpMN = cbor[QStringLiteral("dynastyNames")].toArray();
 	if(!tmpMN.isEmpty()) {
 		for(const auto it : tmpMN) {
-			mercenaryNames.push_back(it.toString());
+			dynastyNames.push_back(it.toString());
 		}
 	}
 	tmpMN = cbor[QStringLiteral("maleNames")].toArray();
 	if(!tmpMN.isEmpty()) {
 		for(const auto it : tmpMN) {
-			mercenaryNames.push_back(it.toString());
+			maleNames.push_back(it.toString());
 		}
 	}
 	tmpMN = cbor[QStringLiteral("femaleNames")].toArray();
 	if(!tmpMN.isEmpty()) {
 		for(const auto it : tmpMN) {
-			mercenaryNames.push_back(it.toString());
+			femaleNames.push_back(it.toString());
 		}
 	}
 	dynastyOfLocationPrefix = cbor[QStringLiteral("dynastyOfLocationPrefix")].toString();

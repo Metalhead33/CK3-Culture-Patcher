@@ -222,11 +222,11 @@ void CultureGroup::fromJson(const QJsonObject &json)
 		}
 	}
 	QJsonObject tmpCL = json[QStringLiteral("cultures")].toObject();
-	if(!tmpMN.isEmpty()) {
+	if(!tmpCL.isEmpty()) {
 		for(auto it = std::begin(tmpCL); it != std::end(tmpCL); ++it) {
 			Culture tmpCult;
 			tmpCult.fromJson(it.value().toObject());
-			cultures.insert(it.key(),tmpCult);
+			this->cultures.insert(it.key(),tmpCult);
 		}
 	}
 }
@@ -247,7 +247,7 @@ void CultureGroup::fromCbor(const QCborMap &cbor)
 		}
 	}
 	QCborMap tmpCL = cbor[QStringLiteral("cultures")].toMap();
-	if(!tmpMN.isEmpty()) {
+	if(!tmpCL.isEmpty()) {
 		for(auto it = std::begin(tmpCL); it != std::end(tmpCL); ++it) {
 			Culture tmpCult;
 			tmpCult.fromCbor(it.value().toMap());

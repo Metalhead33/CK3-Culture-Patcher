@@ -2,6 +2,7 @@
 #define MAINWINDOW_HPP
 
 #include <QMainWindow>
+#include <CultureGroup.hpp>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -16,9 +17,17 @@ public:
 	~MainWindow();
 
 private slots:
-	void on_pushButton_clicked();
+
+	void on_loadRegular_clicked();
+
+	void on_saveRegular_clicked();
+
+	void on_loadJson_clicked();
+
+	void on_saveJson_clicked();
 
 private:
 	Ui::MainWindow *ui;
+	CultureGroup group;
 };
 #endif // MAINWINDOW_HPP

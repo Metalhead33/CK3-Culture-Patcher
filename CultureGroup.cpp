@@ -97,7 +97,7 @@ void CultureGroup::load(QTextStream &stream)
 		QString curStr;
 		stream >> curStr;
 		if(curStr.isEmpty()) return;
-		if(curStr.startsWith(QChar('#'))) {
+		while(curStr.startsWith(QChar('#'))) {
 			stream.readLine();
 			stream >> curStr;
 		}

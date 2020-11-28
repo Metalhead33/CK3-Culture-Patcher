@@ -32,6 +32,7 @@ private:
 	bool dynastyTitleNames = false;
 	bool alwaysUsePatronym = false;
 	bool usedForRandom = true;
+	bool dukesCalledKings = false;
 	int patGrfNameChance = 0;
 	int matGrfNameChance = 0;
 	int fatherNameChance = 0;
@@ -106,6 +107,11 @@ public:
 	void setCharacterModifier(const QVariantMap &value);
 	bool getUsedForRandom() const;
 	void setUsedForRandom(bool value);
+	const QColor& getColor() const;
+	QColor& getColor();
+	void setColor(const QColor &value);
+	bool getDukesCalledKings() const;
+	void setDukesCalledKings(bool value);
 };
 
 QTextStream& operator<<(QTextStream& stream, const Culture& culture);

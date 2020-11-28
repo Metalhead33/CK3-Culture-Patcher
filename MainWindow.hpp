@@ -26,8 +26,12 @@ private slots:
 
 	void on_saveJson_clicked();
 
+	void on_saveColors_clicked();
+
 private:
 	Ui::MainWindow *ui;
-	CultureGroup group;
+	QMap<QString,CultureGroup> groups;
+	QJsonObject saveColorsJSON();
+	QCborMap saveColorsCBOR();
 };
 #endif // MAINWINDOW_HPP

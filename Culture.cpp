@@ -34,6 +34,31 @@ void Culture::setUsedForRandom(bool value)
 	usedForRandom = value;
 }
 
+const QColor &Culture::getColor() const
+{
+	return color;
+}
+
+QColor &Culture::getColor()
+{
+	return color;
+}
+
+void Culture::setColor(const QColor &value)
+{
+	color = value;
+}
+
+bool Culture::getDukesCalledKings() const
+{
+	return dukesCalledKings;
+}
+
+void Culture::setDukesCalledKings(bool value)
+{
+	dukesCalledKings = value;
+}
+
 Culture::Culture()
 {
 
@@ -88,6 +113,8 @@ enum class CultureParseStates {
 	FOUNDER_NAME_EQUAL, // =
 	RANDOM_ENTRY, // used_for_random
 	RANDOM_EQUAL, // =
+	DUKES_ENTRY, // dukes_called_kings
+	DUKES_EQUAL, // =
 	ETHNICITIES_ENTRY, // ethnicities
 	ETHNICITIES_EQUAL, // =
 	ETHNICITIES_START, // {
@@ -154,6 +181,7 @@ void Culture::toCbor(QCborMap &cbor) const
 	cbor[QStringLiteral("dynastyTitleNames")] = dynastyTitleNames;
 	cbor[QStringLiteral("alwaysUsePatronym")] = alwaysUsePatronym;
 	cbor[QStringLiteral("usedForRandom")] = usedForRandom;
+	cbor[QStringLiteral("dukesCalledKings")] = dukesCalledKings;
 	cbor[QStringLiteral("patGrfNameChance")] = patGrfNameChance;
 	cbor[QStringLiteral("matGrfNameChance")] = matGrfNameChance;
 	cbor[QStringLiteral("fatherNameChance")] = fatherNameChance;
@@ -235,7 +263,7 @@ void Culture::load(QTextStream &stream)
 		QString curStr;
 		stream >> curStr;
 		if(curStr.isEmpty()) return;
-		if(curStr.startsWith(QChar('#'))) {
+		while(curStr.startsWith(QChar('#'))) {
 			stream.readLine();
 			stream >> curStr;
 		}
@@ -301,6 +329,8 @@ void Culture::load(QTextStream &stream)
 				state = CultureParseStates::ALWAYS_PATRONYM_ENTRY;
 			} else if(!curStr.compare(QStringLiteral("character_modifier"))) {
 				state = CultureParseStates::CHARMOD_ENTRY;
+			} else if(!curStr.compare(QStringLiteral("dukes_called_kings"))) {
+				state = CultureParseStates::DUKES_ENTRY;
 			} else {
 				qWarning("Unknown token encountered!");
 				if(!curStr.isEmpty()) {
@@ -309,6 +339,16 @@ void Culture::load(QTextStream &stream)
 				}
 				if(tmpInt > 3) state = CultureParseStates::DONE;
 				else ++tmpInt;
+			} break;
+		case CultureParseStates::DUKES_EQUAL:
+			if(!curStr.compare(QStringLiteral("yes"))) {
+				usedForRandom = true;
+			} else usedForRandom = false;
+			state = CultureParseStates::EXPECTING_ENTRY;
+			break;
+		case CultureParseStates::DUKES_ENTRY:
+			if(!curStr.compare(QStringLiteral("="))) {
+				state = CultureParseStates::DUKES_EQUAL;
 			} break;
 		case CultureParseStates::RANDOM_EQUAL:
 			if(!curStr.compare(QStringLiteral("no"))) {
@@ -846,6 +886,7 @@ void Culture::save(QTextStream &stream) const
 	if(founderNamedDynasties) stream << QStringLiteral("\t\tfounder_named_dynasties = yes\n");
 	if(dynastyTitleNames) stream << QStringLiteral("\t\tdynasty_title_names = yes\n");
 	if(alwaysUsePatronym) stream << QStringLiteral("\t\talways_use_patronym = yes\n");
+	if(dukesCalledKings) stream << QStringLiteral("\t\tdukes_called_kings = yes\n");
 	if(patGrfNameChance) stream << QStringLiteral("\t\tpat_grf_name_chance = %1\n").arg(patGrfNameChance);
 	if(matGrfNameChance) stream << QStringLiteral("\t\tmat_grf_name_chance = %1\n").arg(matGrfNameChance);
 	if(fatherNameChance) stream << QStringLiteral("\t\tfather_name_chance = %1\n").arg(fatherNameChance);
@@ -928,6 +969,7 @@ void Culture::fromJson(const QJsonObject &json)
 	dynastyTitleNames = json[QStringLiteral("dynastyTitleNames")].toBool();
 	alwaysUsePatronym = json[QStringLiteral("alwaysUsePatronym")].toBool();
 	usedForRandom = json[QStringLiteral("usedForRandom")].toBool();
+	dukesCalledKings = json[QStringLiteral("dukesCalledKings")].toBool();
 	patGrfNameChance = json[QStringLiteral("patGrfNameChance")].toInt();
 	matGrfNameChance = json[QStringLiteral("matGrfNameChance")].toInt();
 	fatherNameChance = json[QStringLiteral("fatherNameChance")].toInt();
@@ -1001,6 +1043,7 @@ void Culture::fromCbor(const QCborMap &cbor)
 	dynastyTitleNames = cbor[QStringLiteral("dynastyTitleNames")].toBool();
 	alwaysUsePatronym = cbor[QStringLiteral("alwaysUsePatronym")].toBool();
 	usedForRandom = cbor[QStringLiteral("usedForRandom")].toBool();
+	dukesCalledKings = cbor[QStringLiteral("dukesCalledKings")].toBool();
 	patGrfNameChance = cbor[QStringLiteral("patGrfNameChance")].toInteger();
 	matGrfNameChance = cbor[QStringLiteral("matGrfNameChance")].toInteger();
 	fatherNameChance = cbor[QStringLiteral("fatherNameChance")].toInteger();
@@ -1038,6 +1081,7 @@ void Culture::toJson(QJsonObject &json) const
 	json[QStringLiteral("dynastyTitleNames")] = dynastyTitleNames;
 	json[QStringLiteral("alwaysUsePatronym")] = alwaysUsePatronym;
 	json[QStringLiteral("usedForRandom")] = usedForRandom;
+	json[QStringLiteral("dukesCalledKings")] = dukesCalledKings;
 	json[QStringLiteral("patGrfNameChance")] = patGrfNameChance;
 	json[QStringLiteral("matGrfNameChance")] = matGrfNameChance;
 	json[QStringLiteral("fatherNameChance")] = fatherNameChance;

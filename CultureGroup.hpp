@@ -15,6 +15,13 @@ public:
 	CultureGroup();
 	void load(QTextStream& stream);
 	void save(QTextStream& stream) const;
+	// JSON and CBOR
+	void fromJson(const QJsonObject& json);
+	void fromCbor(const QCborMap& cbor);
+	void toJson(QJsonObject& json) const;
+	QJsonObject toJson() const;
+	void toCbor(QCborMap& cbor) const;
+	QCborMap toCbor() const;
 	// Getters and setters
 	QString& getName();
 	const QString& getName() const;

@@ -2,6 +2,8 @@
 #include <QList>
 #include <QPair>
 #include <QtGlobal>
+#include <QJsonArray>
+#include <QCborArray>
 
 typedef QPair<QString,int> NamedNumber;
 
@@ -114,6 +116,101 @@ enum class CultureParseStates {
 	CHARMOD_MAP, // =
 	CHARMOD_VALUE, // <variant>
 };
+
+
+QJsonObject Culture::toJson() const
+{
+	QJsonObject tmp;
+	toJson(tmp);
+	return tmp;
+}
+
+void Culture::toCbor(QCborMap &cbor) const
+{
+	cbor[QStringLiteral("color")] = QCborValue::fromVariant(color);
+	cbor[QStringLiteral("dynastyOfLocationPrefix")] = dynastyOfLocationPrefix;
+	cbor[QStringLiteral("patronymSuffixMale")] = patronymSuffixMale;
+	cbor[QStringLiteral("patronymSuffixFemale")] = patronymSuffixFemale;
+	cbor[QStringLiteral("patronymPrefixMale")] = patronymPrefixMale;
+	cbor[QStringLiteral("patronymPrefixMaleVowel")] = patronymPrefixMaleVowel;
+	cbor[QStringLiteral("patronymPrefixFemale")] = patronymPrefixFemale;
+	cbor[QStringLiteral("patronymPrefixFemaleVowel")] = patronymPrefixFemaleVowel;
+	cbor[QStringLiteral("grammarTransform")] = grammarTransform;
+	cbor[QStringLiteral("bastardDynastyPrefix")] = bastardDynastyPrefix;
+	cbor[QStringLiteral("dynastyNameFirst")] = dynastyNameFirst;
+	cbor[QStringLiteral("founderNamedDynasties")] = founderNamedDynasties;
+	cbor[QStringLiteral("dynastyTitleNames")] = dynastyTitleNames;
+	cbor[QStringLiteral("alwaysUsePatronym")] = alwaysUsePatronym;
+	cbor[QStringLiteral("patGrfNameChance")] = patGrfNameChance;
+	cbor[QStringLiteral("matGrfNameChance")] = matGrfNameChance;
+	cbor[QStringLiteral("fatherNameChance")] = fatherNameChance;
+	cbor[QStringLiteral("patGrmNameChance")] = patGrmNameChance;
+	cbor[QStringLiteral("matGrmNameChance")] = matGrmNameChance;
+	cbor[QStringLiteral("motherNameChance")] = motherNameChance;
+	if(!graphicalCultures.isEmpty()) {
+		QCborArray tmp;
+		for(const auto& it : graphicalCultures) {
+			tmp.push_back(it);
+		}
+		cbor[QStringLiteral("graphicalCultures")] = tmp;
+	}
+	if(!mercenaryNames.isEmpty()) {
+		QCborArray tmp;
+		for(const auto& it : mercenaryNames) {
+			tmp.push_back(it);
+		}
+		cbor[QStringLiteral("mercenaryNames")] = tmp;
+	}
+	if(!cadetDynastyNames.isEmpty()) {
+		QCborArray tmp;
+		for(const auto& it : cadetDynastyNames) {
+			tmp.push_back(it);
+		}
+		cbor[QStringLiteral("cadetDynastyNames")] = tmp;
+	}
+	if(!dynastyNames.isEmpty()) {
+		QCborArray tmp;
+		for(const auto& it : dynastyNames) {
+			tmp.push_back(it);
+		}
+		cbor[QStringLiteral("dynastyNames")] = tmp;
+	}
+	if(!maleNames.isEmpty()) {
+		QCborArray tmp;
+		for(const auto& it : maleNames) {
+			tmp.push_back(it);
+		}
+		cbor[QStringLiteral("maleNames")] = tmp;
+	}
+	if(!femaleNames.isEmpty()) {
+		QCborArray tmp;
+		for(const auto& it : femaleNames) {
+			tmp.push_back(it);
+		}
+		cbor[QStringLiteral("femaleNames")] = tmp;
+	}
+	if(!ethnicities.isEmpty()) {
+		QCborMap tmp;
+		for(auto it = std::begin(ethnicities); it != std::end(ethnicities); ++it) {
+			tmp.insert(it.key(),it.value());
+		}
+		cbor[QStringLiteral("ethnicities")] = tmp;
+	}
+	if(!characterModifier.isEmpty()) {
+		QCborMap tmp;
+		for(auto it = std::begin(characterModifier); it != std::end(characterModifier); ++it) {
+			tmp.insert(it.key(),QCborValue::fromVariant(it.value()));
+		}
+		cbor[QStringLiteral("characterModifier")] = tmp;
+	}
+}
+
+QCborMap Culture::toCbor() const
+{
+	QCborMap tmp;
+	toCbor(tmp);
+	return tmp;
+}
 
 void Culture::load(QTextStream &stream)
 {
@@ -749,6 +846,230 @@ void Culture::save(QTextStream &stream) const
 			stream << QStringLiteral("\t\t\t{ name = \"%1\" }").arg(it) << '\n';
 		}
 		stream << QStringLiteral("\t\t}\n");
+	}
+}
+
+void Culture::fromJson(const QJsonObject &json)
+{
+	QJsonArray tmpGC = json[QStringLiteral("graphicalCultures")].toArray();
+	if(!tmpGC.isEmpty()) {
+		for(const auto it : tmpGC) {
+			graphicalCultures.push_back(it.toString());
+		}
+	}
+	QJsonArray tmpMN = json[QStringLiteral("mercenaryNames")].toArray();
+	if(!tmpMN.isEmpty()) {
+		for(const auto it : tmpMN) {
+			mercenaryNames.push_back(it.toString());
+		}
+	}
+	color = json[QStringLiteral("color")].toVariant().value<QColor>();
+	tmpMN = json[QStringLiteral("cadetDynastyNames")].toArray();
+	if(!tmpMN.isEmpty()) {
+		for(const auto it : tmpMN) {
+			mercenaryNames.push_back(it.toString());
+		}
+	}
+	tmpMN = json[QStringLiteral("dynastyNames")].toArray();
+	if(!tmpMN.isEmpty()) {
+		for(const auto it : tmpMN) {
+			mercenaryNames.push_back(it.toString());
+		}
+	}
+	tmpMN = json[QStringLiteral("maleNames")].toArray();
+	if(!tmpMN.isEmpty()) {
+		for(const auto it : tmpMN) {
+			mercenaryNames.push_back(it.toString());
+		}
+	}
+	tmpMN = json[QStringLiteral("femaleNames")].toArray();
+	if(!tmpMN.isEmpty()) {
+		for(const auto it : tmpMN) {
+			mercenaryNames.push_back(it.toString());
+		}
+	}
+	dynastyOfLocationPrefix = json[QStringLiteral("dynastyOfLocationPrefix")].toString();
+	patronymSuffixMale = json[QStringLiteral("patronymSuffixMale")].toString();
+	patronymSuffixFemale = json[QStringLiteral("patronymSuffixFemale")].toString();
+	patronymPrefixMale = json[QStringLiteral("patronymPrefixMale")].toString();
+	patronymPrefixMaleVowel = json[QStringLiteral("patronymPrefixMaleVowel")].toString();
+	patronymPrefixFemale = json[QStringLiteral("patronymPrefixFemale")].toString();
+	patronymPrefixFemaleVowel = json[QStringLiteral("patronymPrefixFemaleVowel")].toString();
+	grammarTransform = json[QStringLiteral("grammarTransform")].toString();
+	bastardDynastyPrefix = json[QStringLiteral("bastardDynastyPrefix")].toString();
+	dynastyNameFirst = json[QStringLiteral("dynastyNameFirst")].toBool();
+	founderNamedDynasties = json[QStringLiteral("founderNamedDynasties")].toBool();
+	dynastyTitleNames = json[QStringLiteral("dynastyTitleNames")].toBool();
+	alwaysUsePatronym = json[QStringLiteral("alwaysUsePatronym")].toBool();
+	patGrfNameChance = json[QStringLiteral("patGrfNameChance")].toInt();
+	matGrfNameChance = json[QStringLiteral("matGrfNameChance")].toInt();
+	fatherNameChance = json[QStringLiteral("fatherNameChance")].toInt();
+	patGrmNameChance = json[QStringLiteral("patGrmNameChance")].toInt();
+	matGrmNameChance = json[QStringLiteral("matGrmNameChance")].toInt();
+	motherNameChance = json[QStringLiteral("motherNameChance")].toInt();
+	QJsonObject tmpCL = json[QStringLiteral("ethnicities")].toObject();
+	if(!tmpMN.isEmpty()) {
+		for(auto it = std::begin(tmpCL); it != std::end(tmpCL); ++it) {
+			ethnicities.insert(it.key(),it.value().toInt());
+		}
+	}
+	tmpCL = json[QStringLiteral("characterModifier")].toObject();
+	if(!tmpMN.isEmpty()) {
+		for(auto it = std::begin(tmpCL); it != std::end(tmpCL); ++it) {
+			characterModifier.insert(it.key(),it.value().toVariant());
+		}
+	}
+}
+
+void Culture::fromCbor(const QCborMap &cbor)
+{
+	QCborArray tmpGC = cbor[QStringLiteral("graphicalCultures")].toArray();
+	if(!tmpGC.isEmpty()) {
+		for(const auto it : tmpGC) {
+			graphicalCultures.push_back(it.toString());
+		}
+	}
+	QCborArray tmpMN = cbor[QStringLiteral("mercenaryNames")].toArray();
+	if(!tmpMN.isEmpty()) {
+		for(const auto it : tmpMN) {
+			mercenaryNames.push_back(it.toString());
+		}
+	}
+	color = cbor[QStringLiteral("color")].toVariant().value<QColor>();
+	tmpMN = cbor[QStringLiteral("cadetDynastyNames")].toArray();
+	if(!tmpMN.isEmpty()) {
+		for(const auto it : tmpMN) {
+			mercenaryNames.push_back(it.toString());
+		}
+	}
+	tmpMN = cbor[QStringLiteral("dynastyNames")].toArray();
+	if(!tmpMN.isEmpty()) {
+		for(const auto it : tmpMN) {
+			mercenaryNames.push_back(it.toString());
+		}
+	}
+	tmpMN = cbor[QStringLiteral("maleNames")].toArray();
+	if(!tmpMN.isEmpty()) {
+		for(const auto it : tmpMN) {
+			mercenaryNames.push_back(it.toString());
+		}
+	}
+	tmpMN = cbor[QStringLiteral("femaleNames")].toArray();
+	if(!tmpMN.isEmpty()) {
+		for(const auto it : tmpMN) {
+			mercenaryNames.push_back(it.toString());
+		}
+	}
+	dynastyOfLocationPrefix = cbor[QStringLiteral("dynastyOfLocationPrefix")].toString();
+	patronymSuffixMale = cbor[QStringLiteral("patronymSuffixMale")].toString();
+	patronymSuffixFemale = cbor[QStringLiteral("patronymSuffixFemale")].toString();
+	patronymPrefixMale = cbor[QStringLiteral("patronymPrefixMale")].toString();
+	patronymPrefixMaleVowel = cbor[QStringLiteral("patronymPrefixMaleVowel")].toString();
+	patronymPrefixFemale = cbor[QStringLiteral("patronymPrefixFemale")].toString();
+	patronymPrefixFemaleVowel = cbor[QStringLiteral("patronymPrefixFemaleVowel")].toString();
+	grammarTransform = cbor[QStringLiteral("grammarTransform")].toString();
+	bastardDynastyPrefix = cbor[QStringLiteral("bastardDynastyPrefix")].toString();
+	dynastyNameFirst = cbor[QStringLiteral("dynastyNameFirst")].toBool();
+	founderNamedDynasties = cbor[QStringLiteral("founderNamedDynasties")].toBool();
+	dynastyTitleNames = cbor[QStringLiteral("dynastyTitleNames")].toBool();
+	alwaysUsePatronym = cbor[QStringLiteral("alwaysUsePatronym")].toBool();
+	patGrfNameChance = cbor[QStringLiteral("patGrfNameChance")].toInteger();
+	matGrfNameChance = cbor[QStringLiteral("matGrfNameChance")].toInteger();
+	fatherNameChance = cbor[QStringLiteral("fatherNameChance")].toInteger();
+	patGrmNameChance = cbor[QStringLiteral("patGrmNameChance")].toInteger();
+	matGrmNameChance = cbor[QStringLiteral("matGrmNameChance")].toInteger();
+	motherNameChance = cbor[QStringLiteral("motherNameChance")].toInteger();
+	QCborMap tmpCL = cbor[QStringLiteral("ethnicities")].toMap();
+	if(!tmpMN.isEmpty()) {
+		for(auto it = std::begin(tmpCL); it != std::end(tmpCL); ++it) {
+			ethnicities.insert(it.key().toString(),it.value().toInteger());
+		}
+	}
+	tmpCL = cbor[QStringLiteral("characterModifier")].toMap();
+	if(!tmpMN.isEmpty()) {
+		for(auto it = std::begin(tmpCL); it != std::end(tmpCL); ++it) {
+			characterModifier.insert(it.key().toString(),it.value().toVariant());
+		}
+	}
+}
+
+void Culture::toJson(QJsonObject &json) const
+{
+	json[QStringLiteral("color")] = QJsonValue::fromVariant(color);
+	json[QStringLiteral("dynastyOfLocationPrefix")] = dynastyOfLocationPrefix;
+	json[QStringLiteral("patronymSuffixMale")] = patronymSuffixMale;
+	json[QStringLiteral("patronymSuffixFemale")] = patronymSuffixFemale;
+	json[QStringLiteral("patronymPrefixMale")] = patronymPrefixMale;
+	json[QStringLiteral("patronymPrefixMaleVowel")] = patronymPrefixMaleVowel;
+	json[QStringLiteral("patronymPrefixFemale")] = patronymPrefixFemale;
+	json[QStringLiteral("patronymPrefixFemaleVowel")] = patronymPrefixFemaleVowel;
+	json[QStringLiteral("grammarTransform")] = grammarTransform;
+	json[QStringLiteral("bastardDynastyPrefix")] = bastardDynastyPrefix;
+	json[QStringLiteral("dynastyNameFirst")] = dynastyNameFirst;
+	json[QStringLiteral("founderNamedDynasties")] = founderNamedDynasties;
+	json[QStringLiteral("dynastyTitleNames")] = dynastyTitleNames;
+	json[QStringLiteral("alwaysUsePatronym")] = alwaysUsePatronym;
+	json[QStringLiteral("patGrfNameChance")] = patGrfNameChance;
+	json[QStringLiteral("matGrfNameChance")] = matGrfNameChance;
+	json[QStringLiteral("fatherNameChance")] = fatherNameChance;
+	json[QStringLiteral("patGrmNameChance")] = patGrmNameChance;
+	json[QStringLiteral("matGrmNameChance")] = matGrmNameChance;
+	json[QStringLiteral("motherNameChance")] = motherNameChance;
+	if(!graphicalCultures.isEmpty()) {
+		QJsonArray tmp;
+		for(const auto& it : graphicalCultures) {
+			tmp.push_back(it);
+		}
+		json[QStringLiteral("graphicalCultures")] = tmp;
+	}
+	if(!mercenaryNames.isEmpty()) {
+		QJsonArray tmp;
+		for(const auto& it : mercenaryNames) {
+			tmp.push_back(it);
+		}
+		json[QStringLiteral("mercenaryNames")] = tmp;
+	}
+	if(!cadetDynastyNames.isEmpty()) {
+		QJsonArray tmp;
+		for(const auto& it : cadetDynastyNames) {
+			tmp.push_back(it);
+		}
+		json[QStringLiteral("cadetDynastyNames")] = tmp;
+	}
+	if(!dynastyNames.isEmpty()) {
+		QJsonArray tmp;
+		for(const auto& it : dynastyNames) {
+			tmp.push_back(it);
+		}
+		json[QStringLiteral("dynastyNames")] = tmp;
+	}
+	if(!maleNames.isEmpty()) {
+		QJsonArray tmp;
+		for(const auto& it : maleNames) {
+			tmp.push_back(it);
+		}
+		json[QStringLiteral("maleNames")] = tmp;
+	}
+	if(!femaleNames.isEmpty()) {
+		QJsonArray tmp;
+		for(const auto& it : femaleNames) {
+			tmp.push_back(it);
+		}
+		json[QStringLiteral("femaleNames")] = tmp;
+	}
+	if(!ethnicities.isEmpty()) {
+		QJsonObject tmp;
+		for(auto it = std::begin(ethnicities); it != std::end(ethnicities); ++it) {
+			tmp.insert(it.key(),it.value());
+		}
+		json[QStringLiteral("ethnicities")] = tmp;
+	}
+	if(!characterModifier.isEmpty()) {
+		QJsonObject tmp;
+		for(auto it = std::begin(characterModifier); it != std::end(characterModifier); ++it) {
+			tmp.insert(it.key(),QJsonValue::fromVariant(it.value()));
+		}
+		json[QStringLiteral("characterModifier")] = tmp;
 	}
 }
 

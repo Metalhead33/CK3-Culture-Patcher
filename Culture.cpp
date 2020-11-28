@@ -24,6 +24,16 @@ void Culture::setGraphicalCultures(const QStringList &value)
 	graphicalCultures = value;
 }
 
+bool Culture::getUsedForRandom() const
+{
+	return usedForRandom;
+}
+
+void Culture::setUsedForRandom(bool value)
+{
+	usedForRandom = value;
+}
+
 Culture::Culture()
 {
 
@@ -76,6 +86,8 @@ enum class CultureParseStates {
 	DYNNAME_FIRST_EQUAL, // =
 	FOUNDER_NAME_ENTRY, // founder_named_dynasties
 	FOUNDER_NAME_EQUAL, // =
+	RANDOM_ENTRY, // used_for_random
+	RANDOM_EQUAL, // =
 	ETHNICITIES_ENTRY, // ethnicities
 	ETHNICITIES_EQUAL, // =
 	ETHNICITIES_START, // {
@@ -141,6 +153,7 @@ void Culture::toCbor(QCborMap &cbor) const
 	cbor[QStringLiteral("founderNamedDynasties")] = founderNamedDynasties;
 	cbor[QStringLiteral("dynastyTitleNames")] = dynastyTitleNames;
 	cbor[QStringLiteral("alwaysUsePatronym")] = alwaysUsePatronym;
+	cbor[QStringLiteral("usedForRandom")] = usedForRandom;
 	cbor[QStringLiteral("patGrfNameChance")] = patGrfNameChance;
 	cbor[QStringLiteral("matGrfNameChance")] = matGrfNameChance;
 	cbor[QStringLiteral("fatherNameChance")] = fatherNameChance;
@@ -264,6 +277,8 @@ void Culture::load(QTextStream &stream)
 				state = CultureParseStates::ETHNICITIES_ENTRY;
 			} else if(!curStr.compare(QStringLiteral("dynasty_title_names"))) {
 				state = CultureParseStates::DYNASTY_TITLE_ENTRY;
+			} else if(!curStr.compare(QStringLiteral("used_for_random"))) {
+				state = CultureParseStates::RANDOM_ENTRY;
 			} else if(!curStr.compare(QStringLiteral("mercenary_names"))) {
 				state = CultureParseStates::MERCENARY_ENTRY;
 			} else if(!curStr.compare(QStringLiteral("pat_grf_name_chance"))) {
@@ -294,6 +309,16 @@ void Culture::load(QTextStream &stream)
 				}
 				if(tmpInt > 3) state = CultureParseStates::DONE;
 				else ++tmpInt;
+			} break;
+		case CultureParseStates::RANDOM_EQUAL:
+			if(!curStr.compare(QStringLiteral("no"))) {
+				usedForRandom = false;
+			} else usedForRandom = true;
+			state = CultureParseStates::EXPECTING_ENTRY;
+			break;
+		case CultureParseStates::RANDOM_ENTRY:
+			if(!curStr.compare(QStringLiteral("="))) {
+				state = CultureParseStates::RANDOM_EQUAL;
 			} break;
 		case CultureParseStates::CHARMOD_ENTRY:
 			if(!curStr.compare(QStringLiteral("="))) {
@@ -753,7 +778,7 @@ void Culture::save(QTextStream &stream) const
 				else stream << '\"' << it << '\"' << ' ';
 				++i;
 			} else {
-				if(it.startsWith(QChar('{'))) stream << it << '\n';
+				if(it.startsWith(QChar('{'))) stream << it << QStringLiteral("\n\t\t\t");
 				else stream << '\"' << it << '\"' << QStringLiteral("\n\t\t\t");
 				i = 0;
 			}
@@ -770,7 +795,7 @@ void Culture::save(QTextStream &stream) const
 				else stream << '\"' << it << '\"' << ' ';
 				++i;
 			} else {
-				if(it.startsWith(QChar('{'))) stream << it << '\n';
+				if(it.startsWith(QChar('{'))) stream << it << QStringLiteral("\n\t\t\t");
 				else stream << '\"' << it << '\"' << QStringLiteral("\n\t\t\t");
 				i = 0;
 			}
@@ -816,6 +841,7 @@ void Culture::save(QTextStream &stream) const
 	if(!patronymPrefixFemaleVowel.isEmpty()) stream << QStringLiteral("\t\tpatronym_prefix_female_vowel = \"%1\"\n").arg(patronymPrefixFemaleVowel);
 	if(!grammarTransform.isEmpty()) stream << QStringLiteral("\t\tgrammar_transform = %1\n").arg(grammarTransform);
 	if(!bastardDynastyPrefix.isEmpty()) stream << QStringLiteral("\t\tbastard_dynasty_prefix = \"%1\"\n").arg(bastardDynastyPrefix);
+	if(!usedForRandom) stream << QStringLiteral("\t\tused_for_random = no\n");
 	if(dynastyNameFirst) stream << QStringLiteral("\t\tdynasty_name_first = yes\n");
 	if(founderNamedDynasties) stream << QStringLiteral("\t\tfounder_named_dynasties = yes\n");
 	if(dynastyTitleNames) stream << QStringLiteral("\t\tdynasty_title_names = yes\n");
@@ -823,8 +849,8 @@ void Culture::save(QTextStream &stream) const
 	if(patGrfNameChance) stream << QStringLiteral("\t\tpat_grf_name_chance = %1\n").arg(patGrfNameChance);
 	if(matGrfNameChance) stream << QStringLiteral("\t\tmat_grf_name_chance = %1\n").arg(matGrfNameChance);
 	if(fatherNameChance) stream << QStringLiteral("\t\tfather_name_chance = %1\n").arg(fatherNameChance);
-	if(patGrmNameChance) stream << QStringLiteral("\t\t\t\tpat_grm_name_chance = %1\n").arg(patGrmNameChance);
-	if(matGrmNameChance) stream << QStringLiteral("mat_grm_name_chance = %1\n").arg(matGrmNameChance);
+	if(patGrmNameChance) stream << QStringLiteral("\t\tpat_grm_name_chance = %1\n").arg(patGrmNameChance);
+	if(matGrmNameChance) stream << QStringLiteral("\t\tmat_grm_name_chance = %1\n").arg(matGrmNameChance);
 	if(motherNameChance) stream << QStringLiteral("\t\tmother_name_chance = %1\n").arg(motherNameChance);
 	// Ethnicities
 	if(!ethnicities.isEmpty()) {
@@ -901,6 +927,7 @@ void Culture::fromJson(const QJsonObject &json)
 	founderNamedDynasties = json[QStringLiteral("founderNamedDynasties")].toBool();
 	dynastyTitleNames = json[QStringLiteral("dynastyTitleNames")].toBool();
 	alwaysUsePatronym = json[QStringLiteral("alwaysUsePatronym")].toBool();
+	usedForRandom = json[QStringLiteral("usedForRandom")].toBool();
 	patGrfNameChance = json[QStringLiteral("patGrfNameChance")].toInt();
 	matGrfNameChance = json[QStringLiteral("matGrfNameChance")].toInt();
 	fatherNameChance = json[QStringLiteral("fatherNameChance")].toInt();
@@ -973,6 +1000,7 @@ void Culture::fromCbor(const QCborMap &cbor)
 	founderNamedDynasties = cbor[QStringLiteral("founderNamedDynasties")].toBool();
 	dynastyTitleNames = cbor[QStringLiteral("dynastyTitleNames")].toBool();
 	alwaysUsePatronym = cbor[QStringLiteral("alwaysUsePatronym")].toBool();
+	usedForRandom = cbor[QStringLiteral("usedForRandom")].toBool();
 	patGrfNameChance = cbor[QStringLiteral("patGrfNameChance")].toInteger();
 	matGrfNameChance = cbor[QStringLiteral("matGrfNameChance")].toInteger();
 	fatherNameChance = cbor[QStringLiteral("fatherNameChance")].toInteger();
@@ -1009,6 +1037,7 @@ void Culture::toJson(QJsonObject &json) const
 	json[QStringLiteral("founderNamedDynasties")] = founderNamedDynasties;
 	json[QStringLiteral("dynastyTitleNames")] = dynastyTitleNames;
 	json[QStringLiteral("alwaysUsePatronym")] = alwaysUsePatronym;
+	json[QStringLiteral("usedForRandom")] = usedForRandom;
 	json[QStringLiteral("patGrfNameChance")] = patGrfNameChance;
 	json[QStringLiteral("matGrfNameChance")] = matGrfNameChance;
 	json[QStringLiteral("fatherNameChance")] = fatherNameChance;

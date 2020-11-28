@@ -31,7 +31,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>90</y>
+      <y>80</y>
       <width>201</width>
       <height>51</height>
      </rect>
@@ -43,7 +43,7 @@
    <widget class="QPushButton" name="loadJson">
     <property name="geometry">
      <rect>
-      <x>240</x>
+      <x>230</x>
       <y>20</y>
       <width>201</width>
       <height>51</height>
@@ -56,8 +56,8 @@
    <widget class="QPushButton" name="saveJson">
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>90</y>
+      <x>230</x>
+      <y>80</y>
       <width>201</width>
       <height>51</height>
      </rect>

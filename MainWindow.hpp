@@ -2,7 +2,7 @@
 #define MAINWINDOW_HPP
 
 #include <QMainWindow>
-#include <CultureGroup.hpp>
+#include "CultureGroup.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

@@ -96,7 +96,7 @@ void CultureGroup::toStream(QTextStream &stream)
 void CultureGroup::replacePhenotypes(const QDir &phenoDir)
 {
 	for (auto it = std::begin(cultures); it != std::end(cultures); ++it) {
-		QFile file(QStringLiteral("%1.txt").arg(it.key()));
+		QFile file( phenoDir.absoluteFilePath(QStringLiteral("%1.txt").arg(it.key())) );
 		file.open(QFile::ReadOnly | QFile::Text);
 		QTextStream stream(&file);
 		it->replacePhenotypes(stream);

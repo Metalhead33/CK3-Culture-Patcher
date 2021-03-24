@@ -198,7 +198,10 @@ void Culture::toCbor(QCborMap &cbor) const
 	if(!mercenaryNames.isEmpty()) {
 		QCborArray tmp;
 		for(const auto& it : mercenaryNames) {
-			tmp.push_back(it);
+			QCborMap obj;
+			obj[QStringLiteral("name")] = it.first;
+			obj[QStringLiteral("coat_of_arms")] = it.second;
+			tmp.push_back(obj);
 		}
 		cbor[QStringLiteral("mercenaryNames")] = tmp;
 	}
@@ -910,7 +913,8 @@ void Culture::save(QTextStream &stream) const
 	if(!mercenaryNames.isEmpty()) {
 		stream << QStringLiteral("\t\tmercenary_names = {\n");
 		for(const auto& it : mercenaryNames) {
-			stream << QStringLiteral("\t\t\t{ name = \"%1\" }").arg(it) << '\n';
+			if(it.second.isEmpty()) stream << QStringLiteral("\t\t{ name = \"%1\" }").arg(it.first) << '\n';
+			else stream << QStringLiteral("\t\t{ name = \"%1\" coat_of_arms = \"%2\" }").arg(it.first).arg(it.second) << '\n';
 		}
 		stream << QStringLiteral("\t\t}\n");
 	}
@@ -927,7 +931,8 @@ void Culture::fromJson(const QJsonObject &json)
 	QJsonArray tmpMN = json[QStringLiteral("mercenaryNames")].toArray();
 	if(!tmpMN.isEmpty()) {
 		for(const auto it : tmpMN) {
-			mercenaryNames.push_back(it.toString());
+			QJsonObject obj = it.toObject();
+			mercenaryNames.push_back(QDoubleString(obj[QStringLiteral("name")].toString(), obj[QStringLiteral("coat_of_arms")].toString()));
 		}
 	}
 	color = json[QStringLiteral("color")].toVariant().value<QColor>();
@@ -1001,7 +1006,8 @@ void Culture::fromCbor(const QCborMap &cbor)
 	QCborArray tmpMN = cbor[QStringLiteral("mercenaryNames")].toArray();
 	if(!tmpMN.isEmpty()) {
 		for(const auto it : tmpMN) {
-			mercenaryNames.push_back(it.toString());
+			QCborMap obj = it.toMap();
+			mercenaryNames.push_back(QDoubleString(obj[QStringLiteral("name")].toString(), obj[QStringLiteral("coat_of_arms")].toString()));
 		}
 	}
 	color = cbor[QStringLiteral("color")].toVariant().value<QColor>();
@@ -1098,7 +1104,10 @@ void Culture::toJson(QJsonObject &json) const
 	if(!mercenaryNames.isEmpty()) {
 		QJsonArray tmp;
 		for(const auto& it : mercenaryNames) {
-			tmp.push_back(it);
+			QJsonObject obj;
+			obj[QStringLiteral("name")] = it.first;
+			obj[QStringLiteral("coat_of_arms")] = it.second;
+			tmp.push_back(obj);
 		}
 		json[QStringLiteral("mercenaryNames")] = tmp;
 	}
@@ -1325,15 +1334,15 @@ void Culture::setEthnicities(const QMap<QString,int> &value)
 {
 	ethnicities = value;
 }
-const QStringList& Culture::getMercenaryNames() const
+const QDoubleStringList &Culture::getMercenaryNames() const
 {
 	return mercenaryNames;
 }
-QStringList& Culture::getMercenaryNames()
+QDoubleStringList& Culture::getMercenaryNames()
 {
 	return mercenaryNames;
 }
-void Culture::setMercenaryNames(const QStringList &value)
+void Culture::setMercenaryNames(const QDoubleStringList &value)
 {
 	mercenaryNames = value;
 }

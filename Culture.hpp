@@ -9,6 +9,8 @@
 #include <QJsonObject>
 #include <QCborMap>
 
+typedef QPair<QString,QString> QDoubleString;
+typedef QList<QDoubleString> QDoubleStringList;
 class Culture
 {
 private:
@@ -40,7 +42,7 @@ private:
 	int matGrmNameChance = 0;
 	int motherNameChance = 0;
 	QMap<QString,int> ethnicities;
-	QStringList mercenaryNames;
+	QDoubleStringList mercenaryNames;
 	QVariantMap characterModifier;
 public:
 	Culture();
@@ -99,9 +101,9 @@ public:
 	const QMap<QString,int>& getEthnicities() const;
 	QMap<QString,int>& getEthnicities();
 	void setEthnicities(const QMap<QString,int> &value);
-	const QStringList& getMercenaryNames() const;
-	QStringList& getMercenaryNames();
-	void setMercenaryNames(const QStringList &value);
+	const QDoubleStringList& getMercenaryNames() const;
+	QDoubleStringList &getMercenaryNames();
+	void setMercenaryNames(const QDoubleStringList &value);
 	const QVariantMap& getCharacterModifier() const;
 	QVariantMap& getCharacterModifier();
 	void setCharacterModifier(const QVariantMap &value);

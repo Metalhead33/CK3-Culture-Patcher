@@ -9,7 +9,7 @@ class CultureGroup
 private:
 	QString name;
 	QStringList graphicalCultures;
-	QStringList mercenaryNames;
+	QDoubleStringList mercenaryNames;
 	QMap<QString,Culture> cultures;
 public:
 	CultureGroup();
@@ -29,9 +29,9 @@ public:
 	QStringList &getGraphicalCultures();
 	const QStringList &getGraphicalCultures() const;
 	void setGraphicalCultures(const QStringList &value);
-	QStringList &getMercenaryNames();
-	const QStringList &getMercenaryNames() const;
-	void setMercenaryNames(const QStringList &value);
+	QDoubleStringList &getMercenaryNames();
+	const QDoubleStringList &getMercenaryNames() const;
+	void setMercenaryNames(const QDoubleStringList &value);
 	QMap<QString, Culture>& getCultures();
 	const QMap<QString, Culture>& getCultures() const;
 	void setCultures(const QMap<QString, Culture> &value);

@@ -1,107 +1,61 @@
-#include <QCoreApplication>
+#include <QApplication>
 #include <QFile>
-#include <QTextStream>
+#include <QDir>
+#include <QDirIterator>
+#include <QFileDialog>
+#include <QFileInfo>
 #include <iostream>
-#include <QList>
+#include <QTextCodec>
+#include "CultureGroup.hpp"
 
-struct CultureData {
-	QString miscStr;
-	QList<QPair<QString,int>> phenotypes;
-};
-
-enum State {
-	EXPECTING_GROUP_NAME,
-	EXPECTING_CULTURE_NAME,
-	EXPECTING_CULTURE_DATA,
-	EXPECTING_PHENOTYPE_DATA
-};
-
-int countBrackets(const QString& str) {
-	int brackets=0;
-	for(const auto& it : str) {
-		if( it == QChar('{')) ++brackets;
-		else if( it == QChar('}')) --brackets;
-	}
-	return brackets;
-}
+void processCultures(const QDir& dirOut, QDirIterator& dirIn, const QString& replacementDir = QString());
 
 int main(int argc, char *argv[])
 {
-	QString lastLine;
-	State state = EXPECTING_GROUP_NAME;
-	QString cultureGrpName;
-	QString groupMisc;
-	QString lastCulture;
-	QHash<QString,CultureData> cultures;
-	int innerBrackets = 1;
-
-	int bracketsOpen = 0;
-	bool keepGoing = true;
-
-	QFile file("/home/metalhead33/NewFolder/CK3-Human-Phenotype-Project/common/culture/cultures/00_balto_finnic.txt");
-	file.open(QFile::ReadOnly);
-	QTextStream stream(&file);
-	while(stream.readLineInto(&lastLine)) {
-		switch (state) {
-		case EXPECTING_GROUP_NAME:
-		{
-			QTextStream(&lastLine,QFile::ReadOnly) >> cultureGrpName;
-			state = EXPECTING_CULTURE_NAME;
-			break;
-		}
-		case EXPECTING_CULTURE_NAME:
-		{
-			if(lastLine.endsWith(QStringLiteral("= {"))) {
-				QString firstSample;
-				QTextStream(&lastLine,QFile::ReadOnly) >> firstSample;
-			if(!firstSample.contains(QStringLiteral("graphical_cultures")) && !firstSample.contains(QStringLiteral("mercenary_names"))) {
-				state = EXPECTING_CULTURE_DATA;
-				cultures[firstSample] = CultureData();
-				lastCulture = firstSample;
-				innerBrackets = 1;
-			} else {
-				lastLine.append(QChar('\n'));
-				groupMisc.append(lastLine);
-			}
-			} else {
-				lastLine.append(QChar('\n'));
-				groupMisc.append(lastLine);
-			}
-			break;
-		}
-		case EXPECTING_CULTURE_DATA: {
-			innerBrackets += countBrackets(lastLine);
-			if(innerBrackets <= 0) state = EXPECTING_CULTURE_NAME;
-			else if( lastLine.contains(QStringLiteral("ethnicities"))) state = EXPECTING_PHENOTYPE_DATA;
-			else {
-			lastLine.append(QChar('\n'));
-			cultures[lastCulture].miscStr.append(lastLine);
-			}
-			break;
-		}
-		case EXPECTING_PHENOTYPE_DATA: {
-			lastLine = lastLine.trimmed();
-			lastLine = lastLine.replace(QStringLiteral(" = "),QStringLiteral("\t"));
-			if(lastLine.contains(QChar('}')) ) { state = EXPECTING_CULTURE_DATA; --innerBrackets; }
-			else {
-				QStringList splitstr = lastLine.split(QChar('\t'));
-				if(splitstr.size() == 2) {
-					cultures[lastCulture].phenotypes.append(QPair<QString,int>(splitstr[1],splitstr[0].toInt()));
-				}
-			}
-			break;
-		}
-		default:
-			break;
-		}
+	if(argc >= 4) {
+		QDirIterator dirIn(QString::fromUtf8(argv[1]) ,{"*.txt"},QDir::Files);
+		QDir dirOut(QString::fromUtf8(argv[2]));
+		QDir replacementDir(QString::fromUtf8(argv[3]));
+		processCultures(dirOut,dirIn);
+		return 0;
 	}
-	std::cout << "Culture group name: " << cultureGrpName.toStdString() << std::endl;
-	for (auto it = std::begin(cultures); it != std::end(cultures); ++it) {
-		std::cout << "Culture name: " << it.key().toStdString() << std::endl;
-		std::cout << "Phenotypes: " << std::endl;
-		for (auto zit = std::begin(it->phenotypes); zit != std::end(it->phenotypes) ; ++zit) {
-			std::cout << "\t" << zit->first.toStdString() << " - " << zit->second << std::endl;
-		}
+	if(argc == 3) {
+		QDirIterator dirIn(QString::fromUtf8(argv[1]) ,{"*.txt"},QDir::Files);
+		QDir dirOut(QString::fromUtf8(argv[2]));
+		processCultures(dirOut,dirIn);
+		return 0;
+	} else {
+		QApplication a(argc,argv);
+		QString dir1 = QFileDialog::getExistingDirectory(nullptr,QStringLiteral("Open culture directory!"));
+		if(dir1.isEmpty()) a.exit();
+		QString dir2 = QFileDialog::getExistingDirectory(nullptr,QStringLiteral("Open output directory!"));
+		if(dir2.isEmpty()) a.exit();
+		QString dir3 = QFileDialog::getExistingDirectory(nullptr,QStringLiteral("Open directory for phenotype replacements!"));
+		QDirIterator dirIn(dir1,{"*.txt"},QDir::Files);
+		QDir dirOut(dir2);
+		processCultures(dirOut,dirIn);
+		return a.exec();
 	}
-	return 0;
+}
+void processCultures(const QDir& dirOut, QDirIterator& dirIn, const QString& replacementDir) {
+	while(dirIn.hasNext()) {
+		QString path = dirIn.next();
+		QFileInfo info(path);
+		QFile file(path);
+		file.open(QFile::ReadOnly | QFile::Text);
+		QTextStream stream1(&file);
+		CultureGroup group;
+		group.fromStream(stream1);
+		file.close();;
+		if(!replacementDir.isEmpty()) {
+			group.replacePhenotypes(QDir(replacementDir));
+		}
+		QFile file2(dirOut.absoluteFilePath(info.fileName() )  );
+		file2.open(QFile::WriteOnly | QFile::Text);
+		QTextStream stream2(&file2);
+		stream2.setCodec(QTextCodec::codecForName("UTF-8"));
+		stream2.setGenerateByteOrderMark(true);
+		group.toStream(stream2);
+		file2.close();;
+	}
 }

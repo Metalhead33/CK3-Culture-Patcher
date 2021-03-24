@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 		QDirIterator dirIn(QString::fromUtf8(argv[1]) ,{"*.txt"},QDir::Files);
 		QDir dirOut(QString::fromUtf8(argv[2]));
 		QDir replacementDir(QString::fromUtf8(argv[3]));
-		processCultures(dirOut,dirIn);
+		processCultures(dirOut,dirIn,replacementDir);
 		return 0;
 	}
 	if(argc == 3) {
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 		QString dir3 = QFileDialog::getExistingDirectory(nullptr,QStringLiteral("Open directory for phenotype replacements!"));
 		QDirIterator dirIn(dir1,{"*.txt"},QDir::Files);
 		QDir dirOut(dir2);
-		processCultures(dirOut,dirIn);
+		processCultures(dirOut,dirIn,replacementDir);
 		return a.exec();
 	}
 }

@@ -19,7 +19,7 @@ int countBrackets(const QString& str) {
 void CultureGroup::fromStream(QTextStream &stream)
 {
 	QString lastLine;
-	State state = EXPECTING_GROUP_NAME;
+	State state = EXPECTING_CULTURE_NAME;
 	QString lastCulture;
 	int innerBrackets = 1;
 
@@ -83,14 +83,14 @@ void CultureGroup::fromStream(QTextStream &stream)
 
 void CultureGroup::toStream(QTextStream &stream)
 {
-	stream << cultureGrpName << " = {\n";
+	//stream << cultureGrpName << " = {\n";
 	stream << groupMisc << "\n";
 	for (auto it = std::begin(cultures); it != std::end(cultures); ++it) {
-		stream << "\t" << it.key() << "= {\n";
+		stream << it.key() << " = {\n";
 		it.value().toStream(stream);
-		stream << "\t}\n";
+		stream << "}\n";
 	}
-	stream << "}\n";
+	//stream << "}\n";
 }
 
 void CultureGroup::replacePhenotypes(const QDir &phenoDir)
@@ -107,11 +107,11 @@ void CultureGroup::replacePhenotypes(const QDir &phenoDir)
 void Culture::toStream(QTextStream &stream)
 {
 	stream << miscStr << '\n';
-	stream << "\t\tethnicities = {\n";
+	stream << "\tethnicities = {\n";
 	for (auto it = std::begin(phenotypes); it != std::end(phenotypes) ; ++it) {
-		stream << "\t\t\t" << it->second << " = " << it->first << "\n";
+		stream << "\t\t" << it->second << " = " << it->first << "\n";
 	}
-	stream << "\t\t}\n";
+	stream << "\t}\n";
 }
 
 void Culture::replacePhenotypes(QTextStream &stream)
